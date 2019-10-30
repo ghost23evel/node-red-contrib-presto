@@ -26,7 +26,7 @@ module.exports = function(RED) {
 		if (config.ca){
 			options.ssl = options.ssl || {};
 			options.ssl.ca = config.ca || '';
-			options.ssl.rejectUnauthorized = (config.rejectUnauthorized == "true");
+			options.ssl.rejectUnauthorized = (config.rejectUnauthorized === "true");
 		}
 	}
 	
@@ -49,11 +49,10 @@ module.exports = function(RED) {
 				data: function(error, data, columns, stats){
 					var resultArrayLength = resultArray.length;
 					var dataLength = data.length;
+					//console.log({data:"length="+dataLength, stats: stats});
 
 					// Pre allocate size
 					resultArray.length = resultArrayLength + dataLength;
-
-					//node.log('data received');
 
 					// Instead of using concat
 					for(var i = 0; i < dataLength; i+=1){
@@ -62,13 +61,15 @@ module.exports = function(RED) {
 				},
 				success: function(error, stats){
 					//console.log({success:"Success", stats: stats});
-					//node.log('success');
 					
 					msg.payload = resultArray;
-					send(msg);
+					node.send([msg, null]);
 				},
-				error:   function(error){
-					node.error(error)
+				error: function(error){
+					//console.log({func:"Error", error: error});
+
+					msg.payload = error;
+					node.send([null, msg]);
 				}
 			});
 
